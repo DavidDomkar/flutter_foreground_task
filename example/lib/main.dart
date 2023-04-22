@@ -13,13 +13,10 @@ void startCallback() {
 }
 
 class MyTaskHandler extends TaskHandler {
-  SendPort? _sendPort;
   int _eventCount = 0;
 
   @override
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
-    _sendPort = sendPort;
-
+  Future<void> onStart(DateTime timestamp) async {
     // You can use the getData function to get the stored data.
     final customData =
         await FlutterForegroundTask.getData<String>(key: 'customData');
@@ -27,7 +24,7 @@ class MyTaskHandler extends TaskHandler {
   }
 
   @override
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+  Future<void> onEvent(DateTime timestamp) async {
     FlutterForegroundTask.updateService(
       notificationTitle: 'MyTaskHandler',
       notificationText: 'eventCount: $_eventCount',
@@ -40,7 +37,7 @@ class MyTaskHandler extends TaskHandler {
   }
 
   @override
-  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
+  Future<void> onDestroy(DateTime timestamp) async {
     // You can use the clearAllData function to clear all the stored data.
     await FlutterForegroundTask.clearAllData();
   }
@@ -62,7 +59,7 @@ class MyTaskHandler extends TaskHandler {
     // it will usually be necessary to send a message through the send port to
     // signal it to restore state when the app is already started.
     FlutterForegroundTask.launchApp("/resume-route");
-    _sendPort?.send('onNotificationPressed');
+    sendPort?.send('onNotificationPressed');
   }
 }
 

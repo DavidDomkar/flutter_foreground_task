@@ -29,13 +29,13 @@ const String _kPrefsKeyPrefix = 'com.pravera.flutter_foreground_task.prefs.';
 /// A class that implements a task handler.
 abstract class TaskHandler {
   /// Called when the task is started.
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort);
+  Future<void> onStart(DateTime timestamp);
 
   /// Called when an event occurs.
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort);
+  Future<void> onEvent(DateTime timestamp);
 
   /// Called when the task is destroyed.
-  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort);
+  Future<void> onDestroy(DateTime timestamp);
 
   /// Called when the notification button on the Android platform is pressed.
   void onButtonPressed(String id) {}
@@ -45,6 +45,8 @@ abstract class TaskHandler {
   /// "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
   /// this function to be called.
   void onNotificationPressed() => FlutterForegroundTask.launchApp();
+
+  SendPort? get sendPort => FlutterForegroundTask._lookupPort();
 }
 
 /// A class that implements foreground task and provides useful utilities.
@@ -241,17 +243,16 @@ class FlutterForegroundTask {
     // Set the method call handler for the background channel.
     backgroundChannel.setMethodCallHandler((call) async {
       final timestamp = DateTime.now();
-      final sendPort = _lookupPort();
 
       switch (call.method) {
         case 'onStart':
-          await handler.onStart(timestamp, sendPort);
+          await handler.onStart(timestamp);
           break;
         case 'onEvent':
-          await handler.onEvent(timestamp, sendPort);
+          await handler.onEvent(timestamp);
           break;
         case 'onDestroy':
-          await handler.onDestroy(timestamp, sendPort);
+          await handler.onDestroy(timestamp);
           break;
         case 'onButtonPressed':
           handler.onButtonPressed(call.arguments.toString());
